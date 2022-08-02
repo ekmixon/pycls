@@ -173,7 +173,7 @@ def apply_op(im, op, prob, magnitude):
     """Apply the selected op to image with given probability and magnitude."""
     # The magnitude is converted to an absolute value v for an op (some ops use -v or v)
     assert 0 <= magnitude <= 1
-    assert op in OP_RANGES and op in OP_FUNCTIONS, "unknown op " + op
+    assert op in OP_RANGES and op in OP_FUNCTIONS, f"unknown op {op}"
     if prob < 1 and random.random() > prob:
         return im
     min_v, max_v, negate = OP_RANGES[op]
@@ -184,7 +184,7 @@ def apply_op(im, op, prob, magnitude):
 
 def rand_augment(im, magnitude, ops=None, n_ops=2, prob=1.0):
     """Applies random augmentation to an image."""
-    ops = ops if ops else RANDAUG_OPS
+    ops = ops or RANDAUG_OPS
     for op in np.random.choice(ops, int(n_ops)):
         im = apply_op(im, op, prob, magnitude)
     return im
@@ -192,7 +192,7 @@ def rand_augment(im, magnitude, ops=None, n_ops=2, prob=1.0):
 
 def auto_augment(im, policy=None):
     """Apply auto augmentation to an image."""
-    policy = policy if policy else AUTOAUG_POLICY
+    policy = policy or AUTOAUG_POLICY
     for op, prob, magnitude in random.choice(policy):
         im = apply_op(im, op, prob, magnitude)
     return im
@@ -214,7 +214,7 @@ def make_augment(augment_str):
 
 def visualize_ops(im, ops=None, num_steps=10):
     """Visualize ops by applying each op by varying amounts."""
-    ops = ops if ops else RANDAUG_OPS
+    ops = ops or RANDAUG_OPS
     w, h, magnitudes = im.size[0], im.size[1], np.linspace(0, 1, num_steps)
     output = Image.new("RGB", (w * num_steps, h * len(ops)))
     for i, op in enumerate(ops):

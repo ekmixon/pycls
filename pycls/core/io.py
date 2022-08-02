@@ -32,7 +32,7 @@ def cache_url(url_or_file, cache_dir, base_url=_PYCLS_BASE_URL, download=True):
     if not is_url:
         return url_or_file
     url = url_or_file
-    assert url.startswith(base_url), "url must start with: {}".format(base_url)
+    assert url.startswith(base_url), f"url must start with: {base_url}"
     cache_file_path = url.replace(base_url, cache_dir)
     if pathmgr.exists(cache_file_path):
         return cache_file_path
@@ -40,7 +40,7 @@ def cache_url(url_or_file, cache_dir, base_url=_PYCLS_BASE_URL, download=True):
     if not pathmgr.exists(cache_file_dir):
         pathmgr.mkdirs(cache_file_dir)
     if download:
-        logger.info("Downloading remote file {} to {}".format(url, cache_file_path))
+        logger.info(f"Downloading remote file {url} to {cache_file_path}")
         download_url(url, cache_file_path)
     return cache_file_path
 

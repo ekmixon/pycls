@@ -94,13 +94,13 @@ def generate_tests(test_name, test_fun, keys):
     keys = sorted(k for k in keys if k not in data)
     for key in keys:
         data[key] = test_fun(key)
-        print("data['{}'] = {}".format(key, data[key]))
+        print(f"data['{key}'] = {data[key]}")
         save_test_data(data, test_name)
 
 
 def save_test_data(data, test_name):
     """Save the data file for a given set of tests."""
-    filename = os.path.join(_PYCLS_DIR, "dev/model_{}.json".format(test_name))
+    filename = os.path.join(_PYCLS_DIR, f"dev/model_{test_name}.json")
     with open(filename, "w") as file:
         data["date-created"] = str(datetime.datetime.now())
         json.dump(data, file, sort_keys=True, indent=4)
@@ -108,7 +108,7 @@ def save_test_data(data, test_name):
 
 def load_test_data(test_name):
     """Load the data file for a given set of tests."""
-    filename = os.path.join(_PYCLS_DIR, "dev/model_{}.json".format(test_name))
+    filename = os.path.join(_PYCLS_DIR, f"dev/model_{test_name}.json")
     if not os.path.exists(filename):
         return {}
     with open(filename, "r") as f:
@@ -126,7 +126,7 @@ class TestComplexity(unittest.TestCase):
     @parameterized.expand(parse_tests(load_test_data("complexity")), skip_on_empty=True)
     @unittest.skipIf(not _RUN_COMPLEXITY_TESTS, "Skipping complexity tests")
     def test(self, key, out_expected):
-        print("Testing complexity of: {}".format(key))
+        print(f"Testing complexity of: {key}")
         out = test_complexity(key)
         self.assertEqual(out, out_expected)
 
@@ -137,10 +137,10 @@ class TestError(unittest.TestCase):
     @parameterized.expand(parse_tests(load_test_data("error")), skip_on_empty=True)
     @unittest.skipIf(not _RUN_ERROR_TESTS, "Skipping error tests")
     def test(self, key, out_expected):
-        print("\nTesting error of: {}".format(key))
+        print(f"\nTesting error of: {key}")
         out = test_error(key)
-        print("expected = {}".format(out_expected))
-        print("measured = {}".format(out))
+        print(f"expected = {out_expected}")
+        print(f"measured = {out}")
         for k in out.keys():
             self.assertAlmostEqual(out[k], out_expected[k], 2)
 
@@ -151,10 +151,10 @@ class TestTiming(unittest.TestCase):
     @parameterized.expand(parse_tests(load_test_data("timing")), skip_on_empty=True)
     @unittest.skipIf(not _RUN_TIMING_TESTS, "Skipping timing tests")
     def test(self, key, out_expected):
-        print("\nTesting timing of: {}".format(key))
+        print(f"\nTesting timing of: {key}")
         out = test_timing(key)
-        print("expected = {}".format(out_expected))
-        print("measured = {}".format(out))
+        print(f"expected = {out_expected}")
+        print(f"measured = {out}")
         for k in out.keys():
             self.assertLessEqual(out[k] / out_expected[k], 1.10)
             self.assertLessEqual(out_expected[k] / out[k], 1.10)

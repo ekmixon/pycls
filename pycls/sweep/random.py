@@ -104,7 +104,7 @@ def plot_rand_cdf(rand_type, low, high, q, n=10000):
     plot_fun = plt.plot if rand_type in ["uniform", "normal"] else plt.semilogx
     plot_fun(unique, cdf, "o-", [low, low], [0, 1], "-k", [high, high], [0, 1], "-k")
     plot_fun([low, high], [cdf[0], cdf[-1]]) if "normal" not in rand_type else ()
-    plt.title("{}(low={}, high={}, q={})".format(rand_type, low, high, q))
+    plt.title(f"{rand_type}(low={low}, high={high}, q={q})")
     plt.show()
 
 

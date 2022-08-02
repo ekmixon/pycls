@@ -107,7 +107,7 @@ class EffStage(Module):
         super(EffStage, self).__init__()
         for i in range(d):
             block = MBConv(w_in, exp_r, k, stride, se_r, w_out)
-            self.add_module("b{}".format(i + 1), block)
+            self.add_module(f"b{i + 1}", block)
             stride, w_in = 1, w_out
 
     def forward(self, x):
@@ -163,7 +163,7 @@ class EffNet(Module):
 
     def __init__(self, params=None):
         super(EffNet, self).__init__()
-        p = EffNet.get_params() if not params else params
+        p = params or EffNet.get_params()
         vs = ["sw", "ds", "ws", "exp_rs", "se_r", "ss", "ks", "hw", "nc"]
         sw, ds, ws, exp_rs, se_r, ss, ks, hw, nc = [p[v] for v in vs]
         stage_params = list(zip(ds, ws, exp_rs, ss, ks))
@@ -171,7 +171,7 @@ class EffNet(Module):
         prev_w = sw
         for i, (d, w, exp_r, stride, k) in enumerate(stage_params):
             stage = EffStage(prev_w, exp_r, k, stride, se_r, w, d)
-            self.add_module("s{}".format(i + 1), stage)
+            self.add_module(f"s{i + 1}", stage)
             prev_w = w
         self.head = EffHead(prev_w, hw, nc)
         self.apply(init_weights)
@@ -184,7 +184,7 @@ class EffNet(Module):
     @staticmethod
     def complexity(cx, params=None):
         """Computes model complexity (if you alter the model, make sure to update)."""
-        p = EffNet.get_params() if not params else params
+        p = params or EffNet.get_params()
         vs = ["sw", "ds", "ws", "exp_rs", "se_r", "ss", "ks", "hw", "nc"]
         sw, ds, ws, exp_rs, se_r, ss, ks, hw, nc = [p[v] for v in vs]
         stage_params = list(zip(ds, ws, exp_rs, ss, ks))

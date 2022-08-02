@@ -100,8 +100,8 @@ def lr_fun_lin(cur_epoch):
 
 def get_lr_fun():
     """Retrieves the specified lr policy function"""
-    lr_fun = "lr_fun_" + cfg.OPTIM.LR_POLICY
-    assert lr_fun in globals(), "Unknown LR policy: " + cfg.OPTIM.LR_POLICY
+    lr_fun = f"lr_fun_{cfg.OPTIM.LR_POLICY}"
+    assert lr_fun in globals(), f"Unknown LR policy: {cfg.OPTIM.LR_POLICY}"
     err_str = "exp lr policy requires OPTIM.MIN_LR to be greater than 0."
     assert cfg.OPTIM.LR_POLICY != "exp" or cfg.OPTIM.MIN_LR > 0, err_str
     return globals()[lr_fun]
@@ -130,7 +130,7 @@ def plot_lr_fun():
     epochs = list(range(cfg.OPTIM.MAX_EPOCH))
     lrs = [get_epoch_lr(epoch) for epoch in epochs]
     plt.plot(epochs, lrs, ".-")
-    plt.title("lr_policy: {}".format(cfg.OPTIM.LR_POLICY))
+    plt.title(f"lr_policy: {cfg.OPTIM.LR_POLICY}")
     plt.xlabel("epochs")
     plt.ylabel("learning rate")
     plt.ylim(bottom=0)

@@ -203,7 +203,7 @@ class ViT(Module):
 
     def __init__(self, params=None):
         super(ViT, self).__init__()
-        p = ViT.get_params() if not params else params
+        p = params or ViT.get_params()
         ViT.check_params(p)
         if p["stem_type"] == "patchify":
             self.stem = ViTStemPatchify(3, p["hidden_d"], p["patch_size"])
@@ -243,7 +243,7 @@ class ViT(Module):
     @staticmethod
     def complexity(cx, params=None):
         """Computes model complexity. If you alter the model, make sure to update."""
-        p = ViT.get_params() if not params else params
+        p = params or ViT.get_params()
         ViT.check_params(p)
         if p["stem_type"] == "patchify":
             cx = ViTStemPatchify.complexity(cx, 3, p["hidden_d"], p["patch_size"])
@@ -276,10 +276,7 @@ def init_weights_vit(model):
                 # The last 1x1 conv of the conv stem
                 init.normal_(m.weight, mean=0.0, std=math.sqrt(2.0 / m.out_channels))
                 init.zeros_(m.bias)
-            elif "cstem" in k:
-                # Use default pytorch init for other conv layers in the C-stem
-                pass
-            else:
+            elif "cstem" not in k:
                 raise NotImplementedError
         if isinstance(m, torch.nn.Linear):
             if "self_attention" in k:
@@ -295,8 +292,5 @@ def init_weights_vit(model):
                 init.zeros_(m.bias)
             else:
                 raise NotImplementedError
-        if isinstance(m, torch.nn.BatchNorm2d) or isinstance(m, torch.nn.LayerNorm):
-            # Use default pytorch init for norm layers
-            pass
     # Pos-embedding init
     init.normal_(model.pos_embedding, mean=0.0, std=0.02)

@@ -34,7 +34,7 @@ def generate_regnet(w_a, w_0, w_m, d, q=8):
 def generate_regnet_full():
     """Generates per stage ws, ds, gs, bs, and ss from RegNet cfg."""
     w_a, w_0, w_m, d = cfg.REGNET.WA, cfg.REGNET.W0, cfg.REGNET.WM, cfg.REGNET.DEPTH
-    ws, ds = generate_regnet(w_a, w_0, w_m, d)[0:2]
+    ws, ds = generate_regnet(w_a, w_0, w_m, d)[:2]
     ss = [cfg.REGNET.STRIDE for _ in ws]
     bs = [cfg.REGNET.BOT_MUL for _ in ws]
     gs = [cfg.REGNET.GROUP_W for _ in ws]
@@ -88,5 +88,5 @@ class RegNet(AnyNet):
     @staticmethod
     def complexity(cx, params=None):
         """Computes model complexity (if you alter the model, make sure to update)."""
-        params = RegNet.get_params() if not params else params
+        params = params or RegNet.get_params()
         return AnyNet.complexity(cx, params)

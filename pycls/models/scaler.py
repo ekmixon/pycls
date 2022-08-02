@@ -75,8 +75,8 @@ def scale_model():
         # Scale AnyNet
         an = cfg.ANYNET
         ds, ws, bs, gs = an.DEPTHS, an.WIDTHS, an.BOT_MULS, an.GROUP_WS
-        bs = bs if bs else [1] * len(ds)
-        gs = gs if gs else [1] * len(ds)
+        bs = bs or [1] * len(ds)
+        gs = gs or [1] * len(ds)
         ds = [max(1, round(d * d_scale)) for d in ds]
         ws = [max(1, round(w * w_scale / 8)) * 8 for w in ws]
         gs = [max(1, round(g * g_scale)) for g in gs]

@@ -42,8 +42,8 @@ def sweep_collect():
     print("Collecting jobs for {:s}... ".format(sweep_dir))
     cfgs_dir = os.path.join(sweep_dir, "cfgs")
     logs_dir = os.path.join(sweep_dir, "logs")
-    assert os.path.exists(cfgs_dir), "Cfgs dir {} not found".format(cfgs_dir)
-    assert os.path.exists(logs_dir), "Logs dir {} not found".format(logs_dir)
+    assert os.path.exists(cfgs_dir), f"Cfgs dir {cfgs_dir} not found"
+    assert os.path.exists(logs_dir), f"Logs dir {logs_dir} not found"
     cfg_files = [c for c in os.listdir(cfgs_dir) if c.endswith(".yaml")]
     log_files = logging.get_log_files(logs_dir)[0]
     # Create worker pool for collecting jobs
@@ -55,19 +55,19 @@ def sweep_collect():
     key = "test_epoch"
     epoch_ind = [d[key]["epoch_ind"][-1] if key in d else 0 for d in sweep]
     epoch_max = [d[key]["epoch_max"][-1] if key in d else 1 for d in sweep]
-    epoch = ["{}/{}".format(i, m) for i, m in zip(epoch_ind, epoch_max)]
+    epoch = [f"{i}/{m}" for i, m in zip(epoch_ind, epoch_max)]
     epoch = [e.ljust(len(max(epoch, key=len))) for e in epoch]
     job_done = sum(i == m for i, m in zip(epoch_ind, epoch_max))
     for d, e, i, m in zip(sweep, epoch, epoch_ind, epoch_max):
         out_str = "  {} [{:3d}%] [{:}]" + (" [stderr]" if d["err"] else "")
         print(out_str.format(d["log_file"], int(i / m * 100), e))
-    jobs_start = "jobs_started={}/{}".format(len(sweep), len(cfg_files))
-    jobs_done = "jobs_done={}/{}".format(job_done, len(cfg_files))
-    ep_done = "epochs_done={}/{}".format(sum(epoch_ind), sum(epoch_max))
-    print("Status: {}, {}, {}".format(jobs_start, jobs_done, ep_done))
+    jobs_start = f"jobs_started={len(sweep)}/{len(cfg_files)}"
+    jobs_done = f"jobs_done={job_done}/{len(cfg_files)}"
+    ep_done = f"epochs_done={sum(epoch_ind)}/{sum(epoch_max)}"
+    print(f"Status: {jobs_start}, {jobs_done}, {ep_done}")
     # Save the sweep data
     sweep_file = os.path.join(sweep_dir, "sweep.json")
-    print("Writing sweep data to: {}".format(sweep_file))
+    print(f"Writing sweep data to: {sweep_file}")
     with open(sweep_file, "w") as f:
         json.dump(sweep, f, sort_keys=True)
     # Clean up checkpoints after saving sweep data, if needed
@@ -75,7 +75,7 @@ def sweep_collect():
     cp_dirs = [f.replace("stdout.log", "checkpoints/") for f in log_files]
     delete_cps = functools.partial(cp.delete_checkpoints, keep=keep)
     num_cleaned = sum(process_pool.map(delete_cps, cp_dirs))
-    print("Deleted {} total checkpoints".format(num_cleaned))
+    print(f"Deleted {num_cleaned} total checkpoints")
 
 
 def main():

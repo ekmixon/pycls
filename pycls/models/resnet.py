@@ -36,7 +36,7 @@ def get_trans_fun(name):
         "bottleneck_transform": BottleneckTransform,
     }
     err_str = "Transformation function '{}' not supported"
-    assert name in trans_funs.keys(), err_str.format(name)
+    assert name in trans_funs, err_str.format(name)
     return trans_funs[name]
 
 
@@ -162,7 +162,7 @@ class ResStage(Module):
             b_w_in = w_in if i == 0 else w_out
             trans_fun = get_trans_fun(cfg.RESNET.TRANS_FUN)
             res_block = ResBlock(b_w_in, w_out, b_stride, trans_fun, w_b, groups)
-            self.add_module("b{}".format(i + 1), res_block)
+            self.add_module(f"b{i + 1}", res_block)
 
     def forward(self, x):
         for block in self.children():

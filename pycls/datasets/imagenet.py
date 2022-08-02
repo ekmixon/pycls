@@ -39,10 +39,10 @@ class ImageNet(torch.utils.data.Dataset):
     """ImageNet dataset."""
 
     def __init__(self, data_path, split):
-        assert os.path.exists(data_path), "Data path '{}' not found".format(data_path)
+        assert os.path.exists(data_path), f"Data path '{data_path}' not found"
         splits = ["train", "val"]
-        assert split in splits, "Split '{}' not supported for ImageNet".format(split)
-        logger.info("Constructing ImageNet {}...".format(split))
+        assert split in splits, f"Split '{split}' not supported for ImageNet"
+        logger.info(f"Constructing ImageNet {split}...")
         self._data_path, self._split = data_path, split
         self._construct_imdb()
 
@@ -50,7 +50,7 @@ class ImageNet(torch.utils.data.Dataset):
         """Constructs the imdb."""
         # Compile the split data path
         split_path = os.path.join(self._data_path, self._split)
-        logger.info("{} data path: {}".format(self._split, split_path))
+        logger.info(f"{self._split} data path: {split_path}")
         # Images are stored per class in subdirs (format: n<number>)
         split_files = os.listdir(split_path)
         self._class_ids = sorted(f for f in split_files if re.match(r"^n[0-9]+$", f))
@@ -64,8 +64,8 @@ class ImageNet(torch.utils.data.Dataset):
             for im_name in os.listdir(im_dir):
                 im_path = os.path.join(im_dir, im_name)
                 self._imdb.append({"im_path": im_path, "class": cont_id})
-        logger.info("Number of images: {}".format(len(self._imdb)))
-        logger.info("Number of classes: {}".format(len(self._class_ids)))
+        logger.info(f"Number of images: {len(self._imdb)}")
+        logger.info(f"Number of classes: {len(self._class_ids)}")
 
     def _prepare_im(self, im):
         """Prepares the image for network input (HWC/BGR/int -> CHW/BGR/float)."""

@@ -46,7 +46,7 @@ def setup_env():
     env = "".join([f"{key}: {value}\n" for key, value in sorted(os.environ.items())])
     logger.info(f"os.environ:\n{env}")
     # Log the config as both human readable and as a json
-    logger.info("Config:\n{}".format(cfg)) if cfg.VERBOSE else ()
+    logger.info(f"Config:\n{cfg}") if cfg.VERBOSE else ()
     logger.info(logging.dump_log_data(cfg, "cfg", None))
     # Fix the RNG seeds (see RNG comment in core/config.py for discussion)
     np.random.seed(cfg.RNG_SEED)
@@ -60,7 +60,7 @@ def setup_model():
     """Sets up a model for training or testing and log the results."""
     # Build the model
     model = builders.build_model()
-    logger.info("Model:\n{}".format(model)) if cfg.VERBOSE else ()
+    logger.info(f"Model:\n{model}") if cfg.VERBOSE else ()
     # Log model complexity
     logger.info(logging.dump_log_data(net.complexity(model), "complexity"))
     # Transfer the model to the current GPU device
@@ -170,12 +170,12 @@ def train_model():
     if cfg.TRAIN.AUTO_RESUME and cp.has_checkpoint():
         file = cp.get_last_checkpoint()
         epoch = cp.load_checkpoint(file, model, ema, optimizer)[0]
-        logger.info("Loaded checkpoint from: {}".format(file))
+        logger.info(f"Loaded checkpoint from: {file}")
         start_epoch = epoch + 1
     elif cfg.TRAIN.WEIGHTS:
         train_weights = get_weights_file(cfg.TRAIN.WEIGHTS)
         cp.load_checkpoint(train_weights, model, ema)
-        logger.info("Loaded initial weights from: {}".format(train_weights))
+        logger.info(f"Loaded initial weights from: {train_weights}")
     # Create data loaders and meters
     train_loader = data_loader.construct_train_loader()
     test_loader = data_loader.construct_test_loader()
@@ -188,7 +188,7 @@ def train_model():
     if start_epoch == 0 and cfg.PREC_TIME.NUM_ITER > 0:
         benchmark.compute_time_full(model, loss_fun, train_loader, test_loader)
     # Perform the training loop
-    logger.info("Start epoch: {}".format(start_epoch + 1))
+    logger.info(f"Start epoch: {start_epoch + 1}")
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
         # Train for one epoch
         params = (train_loader, model, ema, loss_fun, optimizer, scaler, train_meter)
@@ -204,7 +204,7 @@ def train_model():
         ema_err = ema_meter.get_epoch_stats(cur_epoch)["top1_err"]
         # Save a checkpoint
         file = cp.save_checkpoint(model, ema, optimizer, cur_epoch, test_err, ema_err)
-        logger.info("Wrote checkpoint to: {}".format(file))
+        logger.info(f"Wrote checkpoint to: {file}")
 
 
 def test_model():
@@ -216,7 +216,7 @@ def test_model():
     # Load model weights
     test_weights = get_weights_file(cfg.TEST.WEIGHTS)
     cp.load_checkpoint(test_weights, model)
-    logger.info("Loaded model weights from: {}".format(test_weights))
+    logger.info(f"Loaded model weights from: {test_weights}")
     # Create data loaders and meters
     test_loader = data_loader.construct_test_loader()
     test_meter = meters.TestMeter(len(test_loader))

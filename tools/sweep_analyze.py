@@ -42,9 +42,7 @@ def sweep_analyze():
     h.add_plot(plotting.plot_edf(sweeps, names))
     for sweep, name in zip(sweeps, names):
         h.add_details(name, analysis.describe_sweep(sweep))
-    # Pre filter sweep according to pre_filters and plot EDF
-    pre_filters = analyze_cfg.PRE_FILTERS
-    if pre_filters:
+    if pre_filters := analyze_cfg.PRE_FILTERS:
         sweeps = [analysis.apply_filters(sweep, pre_filters) for sweep in sweeps]
         assert all(len(sweep) for sweep in sweeps), "Filtered sweep cannot be empty."
         h.add_section("EDF Filtered")

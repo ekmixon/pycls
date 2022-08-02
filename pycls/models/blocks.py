@@ -60,7 +60,7 @@ def activation(activation_fun=None):
     activation_fun = (activation_fun or cfg.MODEL.ACTIVATION_FUN).lower()
     if activation_fun == "relu":
         return nn.ReLU(inplace=cfg.MODEL.ACTIVATION_INPLACE)
-    elif activation_fun == "silu" or activation_fun == "swish":
+    elif activation_fun in ["silu", "swish"]:
         try:
             return torch.nn.SiLU()
         except AttributeError:
@@ -68,7 +68,7 @@ def activation(activation_fun=None):
     elif activation_fun == "gelu":
         return torch.nn.GELU()
     else:
-        raise AssertionError("Unknown MODEL.ACTIVATION_FUN: " + activation_fun)
+        raise AssertionError(f"Unknown MODEL.ACTIVATION_FUN: {activation_fun}")
 
 
 # --------------------------- Complexity (cx) calculations --------------------------- #

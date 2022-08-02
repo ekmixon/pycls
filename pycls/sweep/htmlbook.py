@@ -31,7 +31,7 @@ class Htmlbook:
     def add_section(self, name):
         """Adds a section to the Htmlbook (also updates table of contents)."""
         anchor = "section{:03d}".format(self.section_counter)
-        name = str(self.section_counter) + " " + name
+        name = f"{str(self.section_counter)} {name}"
         anchor_style = "text-decoration: none;"
         self.section_counter += 1
         # Add section to main text
@@ -39,10 +39,10 @@ class Htmlbook:
         self.doc.stag("hr", style="border: 2px solid")
         with self.tag("h3"):
             self.line("a", "", name=anchor)
-            self.text(name + " ")
+            self.text(f"{name} ")
             self.line("a", "[top]", href="#top", style=anchor_style)
         # Add section to table of contents
-        self.top_line("a", name, href="#" + anchor, style=anchor_style)
+        self.top_line("a", name, href=f"#{anchor}", style=anchor_style)
         self.top_doc.stag("br")
 
     def add_plot(self, matplotlib_figure, ext="svg", **kwargs):
@@ -54,7 +54,7 @@ class Htmlbook:
             self.doc.asis("<svg" + out.getvalue().decode().split("<svg")[1])
         else:
             out = base64.b64encode(out.getbuffer()).decode("ascii")
-            self.doc.asis("<img src='data:image/{};base64,{}'/>".format(ext, out))
+            self.doc.asis(f"<img src='data:image/{ext};base64,{out}'/>")
         self.doc.stag("br")
 
     def add_details(self, summary, details):

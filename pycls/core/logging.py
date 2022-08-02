@@ -96,13 +96,13 @@ def get_log_files(log_dir, name_filter="", log_file=_LOG_FILE):
 def load_log_data(log_file, data_types_to_skip=()):
     """Loads log data into a dictionary of the form data[data_type][metric][index]."""
     # Load log_file
-    assert pathmgr.exists(log_file), "Log file not found: {}".format(log_file)
+    assert pathmgr.exists(log_file), f"Log file not found: {log_file}"
     with pathmgr.open(log_file, "r") as f:
         lines = f.readlines()
     # Extract and parse lines that start with _TAG and have a type specified
     lines = [l[l.find(_TAG) + len(_TAG) :] for l in lines if _TAG in l]
     lines = [simplejson.loads(l) for l in lines]
-    lines = [l for l in lines if _TYPE in l and not l[_TYPE] in data_types_to_skip]
+    lines = [l for l in lines if _TYPE in l and l[_TYPE] not in data_types_to_skip]
     # Generate data structure accessed by data[data_type][index][metric]
     data_types = [l[_TYPE] for l in lines]
     data = {t: [] for t in data_types}
@@ -112,7 +112,7 @@ def load_log_data(log_file, data_types_to_skip=()):
     # Generate data structure accessed by data[data_type][metric][index]
     for t in data:
         metrics = sorted(data[t][0].keys())
-        err_str = "Inconsistent metrics in log for _type={}: {}".format(t, metrics)
+        err_str = f"Inconsistent metrics in log for _type={t}: {metrics}"
         assert all(sorted(d.keys()) == metrics for d in data[t]), err_str
         data[t] = {m: [d[m] for d in data[t]] for m in metrics}
     return data

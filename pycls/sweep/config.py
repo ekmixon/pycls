@@ -7,6 +7,7 @@
 
 """Configuration file (powered by YACS)."""
 
+
 import argparse
 import getpass
 import multiprocessing
@@ -25,7 +26,7 @@ sweep_cfg = _C = CfgNode()
 # ------------------------------ General sweep options ------------------------------- #
 
 # Sweeps root directory where all sweep output subdirectories will be placed
-_C.ROOT_DIR = "/checkpoint/{}/sweeps/".format(getpass.getuser())
+_C.ROOT_DIR = f"/checkpoint/{getpass.getuser()}/sweeps/"
 
 # Sweep name must be unique per sweep and defines the output subdirectory
 _C.NAME = ""
@@ -216,7 +217,7 @@ def load_cfg(sweep_cfg_file):
     assert _C.SETUP.NUM_CONFIGS, err_msg.format("SETUP.NUM_CONFIGS")
     # Check for allowed arguments
     opts = ["all", "last", "none"]
-    err_msg = "COLLECT.CHECKPOINTS_KEEP has to be one of {}".format(opts)
+    err_msg = f"COLLECT.CHECKPOINTS_KEEP has to be one of {opts}"
     assert _C.COLLECT.CHECKPOINTS_KEEP in opts, err_msg
     # Setup the base config (note: this only alters the loaded global cfg)
     cfg.merge_from_other_cfg(_C.SETUP.BASE_CFG)

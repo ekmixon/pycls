@@ -34,7 +34,7 @@ def get_stem_fun(stem_type):
         "simple_stem_in": SimpleStem,
     }
     err_str = "Stem type '{}' not supported"
-    assert stem_type in stem_funs.keys(), err_str.format(stem_type)
+    assert stem_type in stem_funs, err_str.format(stem_type)
     return stem_funs[stem_type]
 
 
@@ -47,7 +47,7 @@ def get_block_fun(block_type):
         "res_bottleneck_linear_block": ResBottleneckLinearBlock,
     }
     err_str = "Block type '{}' not supported"
-    assert block_type in block_funs.keys(), err_str.format(block_type)
+    assert block_type in block_funs, err_str.format(block_type)
     return block_funs[block_type]
 
 
@@ -316,7 +316,7 @@ class AnyStage(Module):
         super(AnyStage, self).__init__()
         for i in range(d):
             block = block_fun(w_in, w_out, stride, params)
-            self.add_module("b{}".format(i + 1), block)
+            self.add_module(f"b{i + 1}", block)
             stride, w_in = 1, w_out
 
     def forward(self, x):
@@ -345,8 +345,8 @@ class AnyNet(Module):
             "depths": cfg.ANYNET.DEPTHS,
             "widths": cfg.ANYNET.WIDTHS,
             "strides": cfg.ANYNET.STRIDES,
-            "bot_muls": cfg.ANYNET.BOT_MULS if cfg.ANYNET.BOT_MULS else nones,
-            "group_ws": cfg.ANYNET.GROUP_WS if cfg.ANYNET.GROUP_WS else nones,
+            "bot_muls": cfg.ANYNET.BOT_MULS or nones,
+            "group_ws": cfg.ANYNET.GROUP_WS or nones,
             "head_w": cfg.ANYNET.HEAD_W,
             "se_r": cfg.ANYNET.SE_R if cfg.ANYNET.SE_ON else 0,
             "num_classes": cfg.MODEL.NUM_CLASSES,
@@ -354,7 +354,7 @@ class AnyNet(Module):
 
     def __init__(self, params=None):
         super(AnyNet, self).__init__()
-        p = AnyNet.get_params() if not params else params
+        p = params or AnyNet.get_params()
         stem_fun = get_stem_fun(p["stem_type"])
         block_fun = get_block_fun(p["block_type"])
         self.stem = stem_fun(3, p["stem_w"])
@@ -363,7 +363,7 @@ class AnyNet(Module):
         for i, (d, w, s, b, g) in enumerate(zip(*[p[k] for k in keys])):
             params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"]}
             stage = AnyStage(prev_w, w, s, d, block_fun, params)
-            self.add_module("s{}".format(i + 1), stage)
+            self.add_module(f"s{i + 1}", stage)
             prev_w = w
         self.head = AnyHead(prev_w, p["head_w"], p["num_classes"])
         self.apply(init_weights)
@@ -376,7 +376,7 @@ class AnyNet(Module):
     @staticmethod
     def complexity(cx, params=None):
         """Computes model complexity (if you alter the model, make sure to update)."""
-        p = AnyNet.get_params() if not params else params
+        p = params or AnyNet.get_params()
         stem_fun = get_stem_fun(p["stem_type"])
         block_fun = get_block_fun(p["block_type"])
         cx = stem_fun.complexity(cx, 3, p["stem_w"])

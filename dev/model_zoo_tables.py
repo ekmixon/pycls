@@ -60,7 +60,7 @@ def get_model_data(name, timings, errors):
     train_time = timings[name]["train_fw_bw_time"] * iterations / 3600
     # Gather all data about the model
     return {
-        "config_url": "configs/" + config_url,
+        "config_url": f"configs/{config_url}",
         "flops": round(cx["flops"] / 1e9, 1),
         "params": round(cx["params"] / 1e6, 1),
         "acts": round(cx["acts"] / 1e6, 1),
@@ -76,7 +76,7 @@ def get_model_data(name, timings, errors):
 def model_zoo_table_row(name, timings, errors):
     """Make a single row for the MODEL_ZOO.md table."""
     data = get_model_data(name, timings, errors)
-    out = "<!-- ROW {} -->\n<tr>\n".format(name)
+    out = f"<!-- ROW {name} -->\n<tr>\n"
     template = '<td align="left"><a href="{}">{}</a></td>\n'
     out += template.format(data["config_url"], name)
     template = '<td align="center">{}</td>\n'

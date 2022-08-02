@@ -112,7 +112,7 @@ def get_model_list():
 
 def get_config_file(name):
     """Get file with model config (downloads if necessary)."""
-    err_str = "Model {} not found in the model zoo.".format(name)
+    err_str = f"Model {name} not found in the model zoo."
     assert name in _MODEL_ZOO_CONFIGS.keys(), err_str
     config_url = os.path.join(_URL_CONFIGS, _MODEL_ZOO_CONFIGS[name])
     return cache_url(config_url, _DOWNLOAD_CACHE, _URL_CONFIGS)
@@ -120,7 +120,7 @@ def get_config_file(name):
 
 def get_weights_file(name):
     """Get file with model weights (downloads if necessary)."""
-    err_str = "Model {} not found in the model zoo.".format(name)
+    err_str = f"Model {name} not found in the model zoo."
     assert name in _MODEL_ZOO_WEIGHTS.keys(), err_str
     weights_url = os.path.join(_URL_WEIGHTS, _MODEL_ZOO_WEIGHTS[name])
     return cache_url(weights_url, _DOWNLOAD_CACHE, _URL_WEIGHTS)
@@ -154,29 +154,29 @@ def build_model(name, pretrained=False, cfg_list=()):
 
 def regnetx(name, pretrained=False, cfg_list=()):
     """Constructs a RegNetX model (note: loads global config as well)."""
-    name = name if "RegNetX-" in name else "RegNetX-" + name
+    name = name if "RegNetX-" in name else f"RegNetX-{name}"
     return build_model(name, pretrained, cfg_list)
 
 
 def regnety(name, pretrained=False, cfg_list=()):
     """Constructs a RegNetY model (note: loads global config as well)."""
-    name = name if "RegNetY-" in name else "RegNetY-" + name
+    name = name if "RegNetY-" in name else f"RegNetY-{name}"
     return build_model(name, pretrained, cfg_list)
 
 
 def resnet(name, pretrained=False, cfg_list=()):
     """Constructs a ResNet model (note: loads global config as well)."""
-    name = name if "ResNet-" in name else "ResNet-" + name
+    name = name if "ResNet-" in name else f"ResNet-{name}"
     return build_model(name, pretrained, cfg_list)
 
 
 def resnext(name, pretrained=False, cfg_list=()):
     """Constructs a ResNeXt model (note: loads global config as well)."""
-    name = name if "ResNeXt-" in name else "ResNeXt-" + name
+    name = name if "ResNeXt-" in name else f"ResNeXt-{name}"
     return build_model(name, pretrained, cfg_list)
 
 
 def effnet(name, pretrained=False, cfg_list=()):
     """Constructs an EfficientNet model (note: loads global config as well)."""
-    name = name if "EfficientNet-" in name else "EfficientNet-" + name
+    name = name if "EfficientNet-" in name else f"EfficientNet-{name}"
     return build_model(name, pretrained, cfg_list)

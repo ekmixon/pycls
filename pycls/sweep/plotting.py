@@ -56,7 +56,7 @@ def set_colors(colors=None):
     ]
     colors = default_colors if colors is None else colors
     colors, n = np.array(colors), len(colors)
-    err_str = "Invalid colors list: {}".format(colors)
+    err_str = f"Invalid colors list: {colors}"
     assert ((colors >= 0) & (colors <= 1)).all() and colors.shape[1] == 3, err_str
     _COLORS = np.tile(colors, (int(np.ceil((10000 / n))), 1)).reshape((-1, 3))
 
@@ -84,7 +84,7 @@ def fig_make(m_rows, n_cols, flatten, **kwargs):
 def fig_legend(fig, n_cols, names, colors=None, styles=None, markers=None):
     """Adds legend to figure and tweaks layout (call after fig is done)."""
     n, c, s, m = len(names), colors, styles, markers
-    c = c if c else get_color()[:n]
+    c = c or get_color()[:n]
     s = [""] * n if s is None else [s] * n if type(s) == str else s
     m = ["o"] * n if m is None else [m] * n if type(m) == str else m
     n_cols = int(np.ceil(n / np.ceil(n / n_cols)))
@@ -122,8 +122,8 @@ def plot_values(sweeps, names, metrics, filters):
         errs = get_vals(sweep, "error")
         vals = get_vals(sweep, metric)
         v_min, v_med, v_max = f[metric]
-        f = [float(str("{:.3e}".format(f))) for f in f[metric]]
-        l_rng, l_med = "[{}, {}]".format(f[0], f[2]), "best: {}".format(f[1])
+        f = [float("{:.3e}".format(f)) for f in f[metric]]
+        l_rng, l_med = f"[{f[0]}, {f[2]}]", f"best: {f[1]}"
         ax.scatter(vals, errs, color=get_color(j), alpha=0.8)
         ax.plot([v_med, v_med], [e_min, e_max], c="k", label=l_med)
         ax.fill_between([v_min, v_max], e_min, e_max, alpha=0.1, color=c, label=l_rng)
@@ -156,7 +156,7 @@ def plot_values_2d(sweeps, names, metric_pairs):
 def plot_trends(sweeps, names, metrics, filters, max_cols=0):
     """Plots metric versus sweep for each metric."""
     n_metrics, xs = len(metrics), range(len(sweeps))
-    max_cols = max_cols if max_cols else len(sweeps)
+    max_cols = max_cols or len(sweeps)
     m = int(np.ceil(n_metrics / max_cols))
     n = min(max_cols, int(np.ceil(n_metrics / m)))
     fig, axes = fig_make(m, n, True, sharex=False, sharey=False)
@@ -195,9 +195,9 @@ def plot_curves(sweeps, names, metric, n_curves, reverse=False):
     xs_tst = [get_vals(sweep, "test_epoch.epoch_ind") for sweep in sweeps]
     xs_ema = [get_vals(sweep, "test_ema_epoch.epoch_ind") for sweep in sweeps]
     xs_max = [get_vals(sweep, "test_ema_epoch.epoch_max") for sweep in sweeps]
-    ys_trn = [get_vals(sweep, "train_epoch." + metric) for sweep in sweeps]
-    ys_tst = [get_vals(sweep, "test_epoch." + metric) for sweep in sweeps]
-    ys_ema = [get_vals(sweep, "test_ema_epoch." + metric) for sweep in sweeps]
+    ys_trn = [get_vals(sweep, f"train_epoch.{metric}") for sweep in sweeps]
+    ys_tst = [get_vals(sweep, f"test_epoch.{metric}") for sweep in sweeps]
+    ys_ema = [get_vals(sweep, f"test_ema_epoch.{metric}") for sweep in sweeps]
     ticks = [1, 2, 4, 8, 16, 32, 64, 100]
     y_min = min(min(y) for y in ys_ema + ys_tst for y in y)
     y_min = ticks[np.argmin(np.asarray(ticks) <= y_min) - 1]
@@ -241,13 +241,15 @@ def plot_models(sweeps, names, n_models, reverse=False):
         ax, sweep, color = axes[i][j], [sweeps[j][i]], get_color(j)
         metrics = ["error", "flops", "params", "acts", "epoch_fw_bw", "resolution"]
         vals = [get_vals(sweep, m)[0] for m in metrics]
-        label = "e = {:.2f}%, f = {:.2f}B\n".format(*vals[0:2])
-        label += "p = {:.2f}M, a = {:.2f}M\n".format(*vals[2:4])
+        label = "e = {:.2f}%, f = {:.2f}B\n".format(
+            *vals[:2]
+        ) + "p = {:.2f}M, a = {:.2f}M\n".format(*vals[2:4])
+
         label += "t = {0:.0f}s, r = ${1:d} \\times {1:d}$\n".format(*vals[4:6])
         model_type = get_vals(sweep, "cfg.MODEL.TYPE")[0]
         if model_type == "regnet":
             metrics = ["GROUP_W", "BOT_MUL", "WA", "W0", "WM", "DEPTH"]
-            vals = [get_vals(sweep, "cfg.REGNET." + m)[0] for m in metrics]
+            vals = [get_vals(sweep, f"cfg.REGNET.{m}")[0] for m in metrics]
             ws, ds, _, _, _, ws_cont = regnet.generate_regnet(*vals[2:])
             label += "$d_i = {:s}$\n$w_i = {:s}$\n".format(str(ds), str(ws))
             label += "$g={:d}$, $b={:g}$, $w_a={:.1f}$\n".format(*vals[:3])
@@ -264,9 +266,9 @@ def plot_models(sweeps, names, n_models, reverse=False):
             label += "$d_i = {:s}$\n$w_i = {:s}$\n".format(str(ds), str(ws))
             label += "$s_i = {:s}$\n$b_i = {:s}$".format(str(ss), str(bs))
         else:
-            raise AssertionError("Unknown model type" + model_type)
+            raise AssertionError(f"Unknown model type{model_type}")
         ws_all = [w for ws in [[w] * d for d, w in zip(ds, ws)] for w in ws]
-        ds_cum = np.cumsum([0] + ds[0:-1])
+        ds_cum = np.cumsum([0] + ds[:-1])
         ax.plot(ws_all, "o-", c=color, markersize=plt.rcParams["lines.markersize"] - 1)
         ax.plot(ds_cum, ws, "o", c="k", fillstyle="none", label=label)
         ax.legend(loc="lower right", markerscale=0, handletextpad=0, handlelength=0)

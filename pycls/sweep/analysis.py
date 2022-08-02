@@ -119,7 +119,7 @@ metrics_info = {
 def get_info(metric):
     """Returns [compound_key, label, transform] for metric."""
     info = metrics_info[metric] if metric in metrics_info else [metric, metric, None]
-    info[1] = info[1] if info[1] else metric
+    info[1] = info[1] or metric
     return info
 
 
@@ -151,7 +151,7 @@ def get_filters(sweep, metrics, alpha=5, sample=0.25, b=2500):
 
 def apply_filters(sweep, filters):
     """Filter sweep according to dict of filters of form {metric: [min, med, max]}."""
-    filters = filters if filters else {}
+    filters = filters or {}
     for metric, (v_min, _, v_max) in filters.items():
         keep = [v_min <= v <= v_max for v in get_vals(sweep, metric)]
         sweep = [data for k, data in zip(keep, sweep) if k]

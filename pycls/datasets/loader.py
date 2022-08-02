@@ -29,7 +29,7 @@ _PATHS = {"cifar10": "cifar10", "imagenet": "imagenet"}
 
 def _construct_loader(dataset_name, split, batch_size, shuffle, drop_last):
     """Constructs the data loader for the given dataset."""
-    err_str = "Dataset '{}' not supported".format(dataset_name)
+    err_str = f"Dataset '{dataset_name}' not supported"
     assert dataset_name in _DATASETS and dataset_name in _PATHS, err_str
     # Retrieve the data path for the dataset
     data_path = os.path.join(_DATA_DIR, _PATHS[dataset_name])
@@ -37,8 +37,7 @@ def _construct_loader(dataset_name, split, batch_size, shuffle, drop_last):
     dataset = _DATASETS[dataset_name](data_path, split)
     # Create a sampler for multi-process training
     sampler = DistributedSampler(dataset) if cfg.NUM_GPUS > 1 else None
-    # Create a loader
-    loader = torch.utils.data.DataLoader(
+    return torch.utils.data.DataLoader(
         dataset,
         batch_size=batch_size,
         shuffle=(False if sampler else shuffle),
@@ -47,7 +46,6 @@ def _construct_loader(dataset_name, split, batch_size, shuffle, drop_last):
         pin_memory=cfg.DATA_LOADER.PIN_MEMORY,
         drop_last=drop_last,
     )
-    return loader
 
 
 def construct_train_loader():
@@ -74,7 +72,7 @@ def construct_test_loader():
 
 def shuffle(loader, cur_epoch):
     """ "Shuffles the data."""
-    err_str = "Sampler type '{}' not supported".format(type(loader.sampler))
+    err_str = f"Sampler type '{type(loader.sampler)}' not supported"
     assert isinstance(loader.sampler, (RandomSampler, DistributedSampler)), err_str
     # RandomSampler handles shuffling automatically
     if isinstance(loader.sampler, DistributedSampler):

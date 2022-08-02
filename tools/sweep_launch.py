@@ -51,8 +51,8 @@ def sweep_launch():
     logs_dir = os.path.join(sweep_dir, "logs")
     sbatch_dir = os.path.join(logs_dir, "sbatch")
     script_path = os.path.abspath("tools/run_net.py")
-    assert os.path.exists(sweep_dir), "Sweep dir {} invalid".format(sweep_dir)
-    assert os.path.exists(script_path), "Script path {} invalid".format(script_path)
+    assert os.path.exists(sweep_dir), f"Sweep dir {sweep_dir} invalid"
+    assert os.path.exists(script_path), f"Script path {script_path} invalid"
     n_cfgs = len([c for c in os.listdir(cfgs_dir) if c.endswith(".yaml")])
     # Replace path to be relative to copy of pycls
     pycls_copy_dir = os.path.join(sweep_dir, "pycls")
@@ -60,7 +60,7 @@ def sweep_launch():
     script_path = script_path.replace(pycls_dir, pycls_copy_dir)
     current_dir = current_dir.replace(pycls_dir, pycls_copy_dir)
     # Prepare command to copy pycls to sweep_dir/pycls
-    cmd_to_copy_pycls = "cp -R {}/ {}".format(pycls_dir, pycls_copy_dir)
+    cmd_to_copy_pycls = f"cp -R {pycls_dir}/ {pycls_copy_dir}"
     print("Cmd to copy pycls:", cmd_to_copy_pycls)
     # Prepare launch command
     cmd_to_launch_sweep = _SBATCH_CMD.format(

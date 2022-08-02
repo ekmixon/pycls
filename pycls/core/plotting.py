@@ -30,12 +30,12 @@ def prepare_plot_data(log_files, names, metric="top1_err"):
     for file, name in zip(log_files, names):
         d, data = {}, logging.sort_log_data(logging.load_log_data(file))
         for phase in ["train", "test"]:
-            x = data[phase + "_epoch"]["epoch_ind"]
-            y = data[phase + "_epoch"][metric]
-            d["x_" + phase], d["y_" + phase] = x, y
-            d[phase + "_label"] = "[{:5.2f}] ".format(min(y) if y else 0) + name
+            x = data[f"{phase}_epoch"]["epoch_ind"]
+            y = data[f"{phase}_epoch"][metric]
+            d[f"x_{phase}"], d[f"y_{phase}"] = x, y
+            d[f"{phase}_label"] = "[{:5.2f}] ".format(min(y) if y else 0) + name
         plot_data.append(d)
-    assert len(plot_data) > 0, "No data to plot"
+    assert plot_data, "No data to plot"
     return plot_data
 
 
@@ -49,49 +49,48 @@ def plot_error_curves_plotly(log_files, names, filename, metric="top1_err"):
         s = str(i)
         line_train = {"color": colors[i], "dash": "dashdot", "width": 1.5}
         line_test = {"color": colors[i], "dash": "solid", "width": 1.5}
-        data.append(
-            go.Scatter(
-                x=d["x_train"],
-                y=d["y_train"],
-                mode="lines",
-                name=d["train_label"],
-                line=line_train,
-                legendgroup=s,
-                visible=True,
-                showlegend=False,
+        data.extend(
+            (
+                go.Scatter(
+                    x=d["x_train"],
+                    y=d["y_train"],
+                    mode="lines",
+                    name=d["train_label"],
+                    line=line_train,
+                    legendgroup=s,
+                    visible=True,
+                    showlegend=False,
+                ),
+                go.Scatter(
+                    x=d["x_test"],
+                    y=d["y_test"],
+                    mode="lines",
+                    name=d["test_label"],
+                    line=line_test,
+                    legendgroup=s,
+                    visible=True,
+                    showlegend=True,
+                ),
+                go.Scatter(
+                    x=d["x_train"],
+                    y=d["y_train"],
+                    mode="lines",
+                    name=d["train_label"],
+                    line=line_train,
+                    legendgroup=s,
+                    visible=False,
+                    showlegend=True,
+                ),
             )
         )
-        data.append(
-            go.Scatter(
-                x=d["x_test"],
-                y=d["y_test"],
-                mode="lines",
-                name=d["test_label"],
-                line=line_test,
-                legendgroup=s,
-                visible=True,
-                showlegend=True,
-            )
-        )
-        data.append(
-            go.Scatter(
-                x=d["x_train"],
-                y=d["y_train"],
-                mode="lines",
-                name=d["train_label"],
-                line=line_train,
-                legendgroup=s,
-                visible=False,
-                showlegend=True,
-            )
-        )
+
     # Prepare layout w ability to toggle 'all', 'train', 'test'
     titlefont = {"size": 18, "color": "#7f7f7f"}
     vis = [[True, True, False], [False, False, True], [False, True, False]]
     buttons = zip(["all", "train", "test"], [[{"visible": v}] for v in vis])
     buttons = [{"label": b, "args": v, "method": "update"} for b, v in buttons]
     layout = go.Layout(
-        title=metric + " vs. epoch<br>[dash=train, solid=test]",
+        title=f"{metric} vs. epoch<br>[dash=train, solid=test]",
         xaxis={"title": "epoch", "titlefont": titlefont},
         yaxis={"title": metric, "titlefont": titlefont},
         showlegend=True,
@@ -108,6 +107,7 @@ def plot_error_curves_plotly(log_files, names, filename, metric="top1_err"):
             }
         ],
     )
+
     # Create plotly plot
     offline.plot({"data": data, "layout": layout}, filename=filename)
 

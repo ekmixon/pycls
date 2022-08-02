@@ -28,19 +28,19 @@ class Cifar10(torch.utils.data.Dataset):
     """CIFAR-10 dataset."""
 
     def __init__(self, data_path, split):
-        assert pathmgr.exists(data_path), "Data path '{}' not found".format(data_path)
+        assert pathmgr.exists(data_path), f"Data path '{data_path}' not found"
         splits = ["train", "test"]
-        assert split in splits, "Split '{}' not supported for cifar".format(split)
-        logger.info("Constructing CIFAR-10 {}...".format(split))
+        assert split in splits, f"Split '{split}' not supported for cifar"
+        logger.info(f"Constructing CIFAR-10 {split}...")
         self._data_path, self._split = data_path, split
         self._inputs, self._labels = self._load_data()
 
     def _load_data(self):
         """Loads data into memory."""
-        logger.info("{} data path: {}".format(self._split, self._data_path))
+        logger.info(f"{self._split} data path: {self._data_path}")
         # Compute data batch names
         if self._split == "train":
-            batch_names = ["data_batch_{}".format(i) for i in range(1, 6)]
+            batch_names = [f"data_batch_{i}" for i in range(1, 6)]
         else:
             batch_names = ["test_batch"]
         # Load data batches

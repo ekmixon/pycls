@@ -50,9 +50,11 @@ def get_last_checkpoint():
 def has_checkpoint():
     """Determines if there are checkpoints available."""
     checkpoint_dir = get_checkpoint_dir()
-    if not pathmgr.exists(checkpoint_dir):
-        return False
-    return any(_NAME_PREFIX in f for f in pathmgr.ls(checkpoint_dir))
+    return (
+        any(_NAME_PREFIX in f for f in pathmgr.ls(checkpoint_dir))
+        if pathmgr.exists(checkpoint_dir)
+        else False
+    )
 
 
 def save_checkpoint(model, model_ema, optimizer, epoch, test_err, ema_err):
@@ -130,8 +132,8 @@ def load_checkpoint(checkpoint_file, model, model_ema=None, optimizer=None):
 
 def delete_checkpoints(checkpoint_dir=None, keep="all"):
     """Deletes unneeded checkpoints, keep can be "all", "last", or "none"."""
-    assert keep in ["all", "last", "none"], "Invalid keep setting: {}".format(keep)
-    checkpoint_dir = checkpoint_dir if checkpoint_dir else get_checkpoint_dir()
+    assert keep in ["all", "last", "none"], f"Invalid keep setting: {keep}"
+    checkpoint_dir = checkpoint_dir or get_checkpoint_dir()
     if keep == "all" or not pathmgr.exists(checkpoint_dir):
         return 0
     checkpoints = [f for f in pathmgr.ls(checkpoint_dir) if _NAME_PREFIX in f]

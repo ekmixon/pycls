@@ -45,7 +45,7 @@ def regnet_sampler(sampler):
     gw = rand.power2_or_log_uniform(*sampler.GROUP_W, 8)
     bm = rand.power2_uniform(*sampler.BOT_MUL, 1 / 128)
     params = ["DEPTH", d, "W0", w0, "WA", wa, "WM", wm, "GROUP_W", gw, "BOT_MUL", bm]
-    return ["REGNET." + p if i % 2 == 0 else p for i, p in enumerate(params)]
+    return [f"REGNET.{p}" if i % 2 == 0 else p for i, p in enumerate(params)]
 
 
 sampler_types = {
@@ -104,7 +104,7 @@ def check_complexity_constraints(constraints):
     for p, v in constraints.CX.items():
         p, min_v, max_v = p.lower(), v[0], v[1]
         if min_v != 0 or max_v != 0:
-            cx = cx if cx else net.complexity(builders.get_model())
+            cx = cx or net.complexity(builders.get_model())
             min_v = cx[p] if min_v == 0 else min_v
             max_v = cx[p] if max_v == 0 else max_v
             valid = valid and (min_v <= cx[p] <= max_v)

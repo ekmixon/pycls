@@ -30,8 +30,8 @@ def sample_cfgs(seed):
         # Sample parameters [key, val, ...] list based on the samplers
         params = samplers.sample_parameters(setup_cfg.SAMPLERS)
         # Check if config is unique, if not continue
-        key = zip(params[0::2], params[1::2])
-        key = " ".join(["{} {}".format(k, v) for k, v in key])
+        key = zip(params[::2], params[1::2])
+        key = " ".join([f"{k} {v}" for k, v in key])
         if key in cfgs:
             continue
         # Generate config from parameters
@@ -72,15 +72,15 @@ def sweep_setup():
     sweep_dir = os.path.join(sweep_cfg.ROOT_DIR, sweep_cfg.NAME)
     cfgs_dir = os.path.join(sweep_dir, "cfgs")
     logs_dir = os.path.join(sweep_dir, "logs")
-    print("Sweep directory is: {}".format(sweep_dir))
-    assert not os.path.exists(logs_dir), "Sweep already started: " + sweep_dir
+    print(f"Sweep directory is: {sweep_dir}")
+    assert not os.path.exists(logs_dir), f"Sweep already started: {sweep_dir}"
     if os.path.exists(logs_dir) or os.path.exists(cfgs_dir):
         print("Overwriting sweep which has not yet launched")
     os.makedirs(sweep_dir, exist_ok=True)
     os.makedirs(cfgs_dir, exist_ok=True)
     # Dump the original sweep_cfg
     sweep_cfg_file = os.path.join(sweep_dir, "sweep_cfg.yaml")
-    os.system("cp {} {}".format(sweep_cfg.SWEEP_CFG_FILE, sweep_cfg_file))
+    os.system(f"cp {sweep_cfg.SWEEP_CFG_FILE} {sweep_cfg_file}")
     # Create worker pool for sampling and saving configs
     n_proc, chunk = sweep_cfg.NUM_PROC, setup_cfg.CHUNK_SIZE
     process_pool = multiprocessing.Pool(n_proc)
@@ -107,7 +107,7 @@ def sweep_setup():
     # Save the cfgs and a cfgs_summary
     timer.tic()
     cfg_names = ["{:06}.yaml".format(i) for i in range(n_cfgs)]
-    cfgs_summary = {cfg_name: key for cfg_name, key in zip(cfg_names, keys)}
+    cfgs_summary = dict(zip(cfg_names, keys))
     with open(os.path.join(sweep_dir, "cfgs_summary.yaml"), "w") as f:
         yaml.dump(cfgs_summary, f, width=float("inf"))
     cfg_files = [os.path.join(cfgs_dir, cfg_name) for cfg_name in cfg_names]
